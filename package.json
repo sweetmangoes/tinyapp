@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/sweetmangoes/tinyapp/issues"
   },
-  "homepage": "https://github.com/sweetmangoes/tinyapp#readme"
+  "homepage": "https://github.com/sweetmangoes/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }

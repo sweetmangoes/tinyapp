@@ -2,6 +2,12 @@ const express = require("express");
 const app = express();
 const PORT = 8080; 
 
+// function that returns a string of 6 random alphanumeric characters:
+function generateRandomString() {
+  return Math.random().toString(36).substr(2,6);
+};
+
+// 
 app.set("view engine", "ejs");
 
 const urlDatabase = {

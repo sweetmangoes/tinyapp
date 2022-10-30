@@ -45,12 +45,10 @@ app.get("/hello", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  const id = generateRandomString()
+  const newID = generateRandomString()
   const newUrl = req.body.longURL;
-  urlDatabase[id] = newUrl; 
-  console.log(urlDatabase)
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  urlDatabase[newID] = newUrl;
+  res.redirect(`/urls/${newID}`)
 });
 
 app.listen(PORT, () => {

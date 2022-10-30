@@ -7,7 +7,6 @@ function generateRandomString() {
   return Math.random().toString(36).substr(2,6);
 };
 
-// 
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -49,6 +48,12 @@ app.post("/urls", (req, res) => {
   const newUrl = req.body.longURL;
   urlDatabase[newID] = newUrl;
   res.redirect(`/urls/${newID}`)
+});
+
+app.get("/u/:id", (req, res) => { 
+  const id = req.params.id; 
+  const longURL = urlDatabase[id]; 
+  res.redirect(longURL);
 });
 
 app.listen(PORT, () => {

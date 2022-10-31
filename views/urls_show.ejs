@@ -21,10 +21,10 @@
         </p>
       </div>
       <div class="card-footer text-muted">
-        <form method="POST" action="/urls/:id">
+        <form method="POST" action="/urls/<%= id%>">
           <h4 class="card-title"> Edit </h4>
           <label for ="url"> New URL:  </label>
-          <input type="text" />
+          <input type="text" name="longURL"/>
           <button type="Submit"> Save </button>
         </form>
       </div>

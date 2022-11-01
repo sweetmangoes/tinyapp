@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080; 
 
@@ -67,6 +68,11 @@ app.post("/urls/:id", (req, res) => {
   urlDatabase[id] = longUrl;
   res.redirect(`/urls/${id}`)
 });
+
+app.post("/login", (req, res) => {
+
+  res.redirect("/urls");
+}); 
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

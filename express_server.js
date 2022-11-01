@@ -2,7 +2,6 @@ const express = require("express");
 const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080; 
-
 app.use(cookieParser()); 
 
 // function that returns a string of 6 random alphanumeric characters:
@@ -28,7 +27,10 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = {urls: urlDatabase};
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
   res.render("urls_index", templateVars)
 });
 
@@ -37,7 +39,10 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req,res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id]};
+  const templateVars = { 
+    id: req.params.id, 
+    longURL: urlDatabase[req.params.id]
+  };
   console.log()
   res.render("urls_show", templateVars);
 });
@@ -72,7 +77,12 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username)
+  res.cookie('username', req.body.username);
+  res.redirect("/urls");
+}); 
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('username', req.body.username);
   res.redirect("/urls");
 }); 
 

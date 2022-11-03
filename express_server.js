@@ -15,6 +15,15 @@ function randomUserId() {
   return Math.random().toString(36).substr(2,4);
 };
 
+// not working when it get called. Says res not defined
+getUserByEmail = (userEmail) => {
+  for (const id in userDatabase) {
+    if (userEmail === userDatabase[id]["email"] ) { 
+      console.log(`email exist in the database`);
+    }
+  };
+}
+
 const userDatabase = {
   "4pwn": {
     id: "4pwn",
@@ -27,7 +36,6 @@ const userDatabase = {
     password: "abcd", 
   }
 };
-
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -121,7 +129,8 @@ app.post("/login", (req, res) => {
 }); 
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username', req.body.username);
+  // this needs to clear the cookie.
+  res.clearCookie('username', req.body.username); 
   res.redirect("/urls");
 }); 
 
@@ -132,7 +141,22 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const newUserID = randomUserId(); 
   const userEmail = req.body.email; 
-  const userPassword = req.body.password; 
+  const userPassword = req.body.password;
+  if (userEmail === "" || userPassword === "") {
+    res.send(`400 Bad Request`);
+  };
+
+  // not working: 
+  // if (getUserByEmail(userEmail)){
+  //   res.send(`400 Bad Request`);
+  // }; 
+
+  for (const id in userDatabase) {
+    if (userEmail === userDatabase[id]["email"] ) { 
+      res.send(`400 Bad Request`);
+    }
+  };
+
   userDatabase[newUserID] = {
     id: newUserID,
     email: userEmail,

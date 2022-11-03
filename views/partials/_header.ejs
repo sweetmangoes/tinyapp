@@ -19,16 +19,10 @@
       </div>
     </div>
 
-    <%if (email) {%>
       <h5>Logged in as: <%= email %> </h5>
       <form method="POST" action="/logout">
         <button style="margin:20px;" type="submit"> Logout </button>
-        </form>
-    </form>
-    <% } else {%>
-    <form method="POST" action="/login" >
-      <input name="username" placeholder="username"/>
-      <button type="submit"> Login </button>
-    <% }%>
+      </form>
+
   </nav>
 </header>

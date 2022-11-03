@@ -170,6 +170,21 @@ app.get("/login", (req, res) => {
   res.render("urls_login")
 });
 
+app.post("/login", (req, res) => {
+  const userEmail = req.body.email; 
+  const userPassword = req.body.password;
+  // console.log(userEmail, userPassword); 
+  for (const id in userDatabase) {
+    if (userEmail === userDatabase[id]["email"] && userPassword === userDatabase[id]["password"]) {
+      res.cookie('user_id', userDatabase[id]);
+      res.redirect("/urls");
+    }
+  };
+  if (userEmail === "" || userPassword === "") {
+    res.send(`400 Bad Request`);
+  };
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });

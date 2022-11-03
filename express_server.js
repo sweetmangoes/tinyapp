@@ -47,27 +47,39 @@ app.get("/urls.json", (req, res) => {
 //homepage
 app.get("/urls", (req, res) => {
   let user = req.cookies.username; 
+  let userID = req.cookies.user_id; 
+  let email = userDatabase[userID]["email"]; 
   const templateVars = {
     urls: urlDatabase,
-    user: user
+    user: user,
+    userID: userID,
+    email: email,  
   };
   res.render("urls_index", templateVars)
 });
 
 app.get("/urls/new", (req, res) => {
-  let user = req.cookies.username; 
+  let user = req.cookies.username;
+  let userID = req.cookies.user_id;
+  let email = userDatabase[userID]["email"];  
   const templateVars = {
-    user: user
+    user: user,
+    userID: userID,
+    email: email, 
   };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req,res) => {
-  let user = req.cookies.username; 
+  let user = req.cookies.username;
+  let userID = req.cookies.user_id;
+  let email = userDatabase[userID]["email"];   
   const templateVars = { 
     id: req.params.id, 
     longURL: urlDatabase[req.params.id],
-    user: user
+    user: user,
+    userID: userID,
+    email: email,  
   };
   console.log()
   res.render("urls_show", templateVars);

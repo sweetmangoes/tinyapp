@@ -3,13 +3,31 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080; 
 app.use(cookieParser()); 
+app.set("view engine", "ejs");
 
-// function that returns a string of 6 random alphanumeric characters:
+// function that generate a string of 6 random alphanumeric characters for Urls:
 function generateRandomString() {
   return Math.random().toString(36).substr(2,6);
 };
 
-app.set("view engine", "ejs");
+// function that generates random User ID
+function randomUserId() {
+  return Math.random().toString(36).substr(2,4);
+};
+
+const userDatabase = {
+  "4pwn": {
+    id: "4pwn",
+    email: "johndoe@gmail.com",
+    password: "1234", 
+  },
+  "bcnr": {
+    id: "bcnr",
+    email: "lhl@gmail.com",
+    password: "abcd", 
+  }
+};
+
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -99,6 +117,18 @@ app.get("/register", (req, res) => {
   res.render("urls_register")
 });
 
+app.post("/register", (req, res) => {
+  const newUserID = randomUserId(); 
+  const userEmail = req.body.email; 
+  const userPassword = req.body.password; 
+  userDatabase[newUserID] = {
+    id: newUserID,
+    email: userEmail,
+    password: userPassword
+  }; 
+  res.cookie('user_id', newUserID); 
+  res.redirect("/urls")
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

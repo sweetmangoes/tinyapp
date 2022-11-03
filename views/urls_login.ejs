@@ -15,11 +15,11 @@
       crossorigin="anonymous"
     />
 
-    <title>Registration page - TinyApp Example</title>
+    <title>Login page - TinyApp Example</title>
 
     <nav class="navbar navbar-expand-md navbar-dark bg-success">
       <a class="navbar-brand">
-        <h2>TinyApp | Registration page</h2>
+        <h2>TinyApp | Login page</h2>
       </a>
       <button
         class="navbar-toggler"
@@ -40,18 +40,18 @@
 
     <main style="margin: 1em;">
       <h5>
-        You need to register before using our service. 
+        Provide your credentials below to access URLs: 
         <br> </br>
       </h5>
 
-      <form method="POST" action="/register">
+      <form method="POST" action="/login">
         <label for="email"> Email Addres: </label>
         <input type= "email" name="email" placeholder="johndoe@gmail.com"/>
         <br> </br>
         <label for="password"> Password: </label>
         <input type="password" name="password" placeholder="password"/>
         <br> </br>
-        <button type="submit"> Register </button>
+        <button type="submit"> login </button>
       </form>
     </main>
     <!-- Bootstrap JS -->

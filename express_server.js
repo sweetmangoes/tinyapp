@@ -26,22 +26,30 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+//homepage
 app.get("/urls", (req, res) => {
+  let user = req.cookies.username; 
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"]
+    user: user
   };
   res.render("urls_index", templateVars)
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let user = req.cookies.username; 
+  const templateVars = {
+    user: user
+  };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req,res) => {
+  let user = req.cookies.username; 
   const templateVars = { 
     id: req.params.id, 
-    longURL: urlDatabase[req.params.id]
+    longURL: urlDatabase[req.params.id],
+    user: user
   };
   console.log()
   res.render("urls_show", templateVars);
@@ -77,7 +85,8 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
+  const username = req.body.username; 
+  res.cookie('username', username);
   res.redirect("/urls");
 }); 
 

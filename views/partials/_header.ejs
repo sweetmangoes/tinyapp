@@ -18,9 +18,17 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <form method="POST" action="/login">
-      <input type="text" name="username" placeholder="Username"/>
-      <button type="Submit"> Login </button>
+
+    <%if (user) {%>
+      <h5>Logged in as: <%= user %> </h5>
+      <form method="POST" action="/logout">
+        <button style="margin:20px;" type="submit"> Logout </button>
+        </form>
     </form>
+    <% } else {%>
+    <form method="POST" action="/login" >
+      <input name="username" placeholder="username"/>
+      <button type="submit"> Login </button>
+    <% }%>
   </nav>
 </header>

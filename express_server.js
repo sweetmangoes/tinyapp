@@ -56,6 +56,7 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   let user = req.cookies.username; 
   let userID = req.cookies.user_id; 
+  console.log(userID); 
   let email = userDatabase[userID]["email"]; 
   const templateVars = {
     urls: urlDatabase,
@@ -122,16 +123,10 @@ app.post("/urls/:id", (req, res) => {
   res.redirect(`/urls/${id}`)
 });
 
-app.post("/login", (req, res) => {
-  const username = req.body.username; 
-  res.cookie('username', username);
-  res.redirect("/urls");
-}); 
 
 app.post("/logout", (req, res) => {
-  // this needs to clear the cookie.
-  res.clearCookie('username', req.body.username); 
-  res.redirect("/urls");
+  res.clearCookie('user_id'); 
+  res.redirect("/login");
 }); 
 
 app.get("/register", (req, res) => { 
@@ -172,11 +167,10 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
   const userEmail = req.body.email; 
-  const userPassword = req.body.password;
-  // console.log(userEmail, userPassword); 
+  const userPassword = req.body.password; 
   for (const id in userDatabase) {
     if (userEmail === userDatabase[id]["email"] && userPassword === userDatabase[id]["password"]) {
-      res.cookie('user_id', userDatabase[id]);
+      res.cookie('user_id', id);
       res.redirect("/urls");
     }
   };

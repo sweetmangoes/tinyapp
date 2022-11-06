@@ -1,29 +1,14 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const {
+  findUserByEmail,
+  generateRandomString,
+  randomUserId,
+} = require("./index");
 const app = express();
 const PORT = 8080;
 app.use(cookieParser());
 app.set("view engine", "ejs");
-
-// function that generate a string of 6 random alphanumeric characters for Urls:
-function generateRandomString() {
-  return Math.random().toString(36).substr(2, 6);
-}
-
-// function that generates random User ID
-function randomUserId() {
-  return Math.random().toString(36).substr(2, 4);
-}
-
-// not working when it get called. Says res not defined
-getUserByEmail = (userEmail) => {
-  for (const id in userDatabase) {
-    if (userEmail === userDatabase[id]["email"]) {
-      console.log(`email exist in the database`);
-      return `400 Bad Request`;
-    }
-  }
-};
 
 const userDatabase = {
   "4pwn": {
@@ -53,11 +38,9 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-//homepage
 app.get("/urls", (req, res) => {
   let user = req.cookies.username;
   let userID = req.cookies.user_id;
-  console.log(userID);
   let email = userDatabase[userID]["email"];
   const templateVars = {
     urls: urlDatabase,
@@ -139,8 +122,6 @@ app.post("/register", (req, res) => {
     res.send(`400 Bad Request`);
   }
 
-  // getUserByEmail(userEmail);
-
   for (const id in userDatabase) {
     if (userEmail === userDatabase[id]["email"]) {
       res.send(`400 Bad Request`);
@@ -164,26 +145,16 @@ app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
 
-  // create an helper function file. require this function in order to work everywhere. 
-  const findUserByEmail = (userDatabase, userEmail) => {
-    for (const id in userDatabase) {
-      if (userEmail === userDatabase[id]["email"]) {
-        return userDatabase[id];
-      }
-    }
-    return false;
-  };
-
   if (findUserByEmail(userDatabase, userEmail)) {
     const checking = findUserByEmail(userDatabase, userEmail);
     if (userPassword === checking.password) {
       res.cookie("user_id", checking.id);
       res.redirect("/urls");
     } else {
-      res.send(`Password not found`);
+      res.send(`403 Forbidden`);
     }
   } else {
-    res.send(`Email not found`);
+    res.send(`403 Forbidden`);
   }
 });
 

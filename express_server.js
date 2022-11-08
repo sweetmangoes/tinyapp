@@ -41,8 +41,8 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   let userID = req.cookies.user_id;
   if (!userID) {
-    return res.redirect("/login")
-  } 
+    return res.redirect("/login");
+  }
   let email = userDatabase[userID]["email"];
   const templateVars = {
     urls: urlDatabase,
@@ -55,8 +55,8 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   let userID = req.cookies.user_id;
   if (!userID) {
-    return res.redirect("/login")
-  } 
+    return res.redirect("/login");
+  }
   let email = userDatabase[userID]["email"];
   const templateVars = {
     userID: userID,
@@ -90,8 +90,12 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
+
   const id = req.params.id;
   const longURL = urlDatabase[id];
+  if (!longURL) {
+    return res.send("404 not found")
+  }
   res.redirect(longURL);
 });
 
@@ -129,7 +133,7 @@ app.post("/register", (req, res) => {
       return res.send(`400 Bad Request`);
     }
   }
-  
+
   userDatabase[newUserID] = {
     id: newUserID,
     email: userEmail,

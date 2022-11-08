@@ -10,33 +10,39 @@ const PORT = 8080;
 app.use(cookieParser());
 app.set("view engine", "ejs");
 
+//store database in a seperate file. 
 const userDatabase = {
   "4pwn": {
     id: "4pwn",
     email: "johndoe@gmail.com",
     password: "1234",
+    urls: [{ id: "5sm7Ky", url: "http://www.apple.com" }],
   },
   bcnr: {
     id: "bcnr",
     email: "lhl@gmail.com",
     password: "abcd",
+    urls: [{ id: "9sm5xK", url: "http://www.google.com" }],
   },
 };
 
+//store database in a seperate file. 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
+  "7sm6xK": "http://www.apple.com",
+  "3sm4xK": "http://www.nba.com",
 };
 
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
+// app.get("/", (req, res) => {
+//   res.send("Hello!");
+// });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
+// app.get("/urls.json", (req, res) => {
+//   res.json(urlDatabase);
+// });
 
 app.get("/urls", (req, res) => {
   let userID = req.cookies.user_id;
@@ -44,8 +50,9 @@ app.get("/urls", (req, res) => {
     return res.redirect("/login");
   }
   let email = userDatabase[userID]["email"];
+  let userURLs = userDatabase[userID].urls;
   const templateVars = {
-    urls: urlDatabase,
+    urls: userURLs,
     userID: userID,
     email: email,
   };
@@ -78,23 +85,27 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
+// app.get("/hello", (req, res) => {
+//   res.send("<html><body>Hello <b>World</b></body></html>\n");
+// });
 
 app.post("/urls", (req, res) => {
+  let userID = req.cookies.user_id;
   const newID = generateRandomString();
   const newUrl = req.body.longURL;
-  urlDatabase[newID] = newUrl;
+  userDatabase[userID].urls[newID] = {
+    id: newID,
+    url: newUrl,
+  };
+  console.log(userDatabase[userID].urls[newID]); // overwrites stored data for some reason. 
   res.redirect(`/urls/${newID}`);
 });
 
 app.get("/u/:id", (req, res) => {
-
   const id = req.params.id;
   const longURL = urlDatabase[id];
   if (!longURL) {
-    return res.send("404 not found")
+    return res.send("404 not found");
   }
   res.redirect(longURL);
 });

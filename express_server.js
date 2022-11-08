@@ -39,12 +39,13 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let user = req.cookies.username;
   let userID = req.cookies.user_id;
+  if (!userID) {
+    return res.redirect("/login")
+  } 
   let email = userDatabase[userID]["email"];
   const templateVars = {
     urls: urlDatabase,
-    user: user,
     userID: userID,
     email: email,
   };
@@ -52,11 +53,12 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  let user = req.cookies.username;
   let userID = req.cookies.user_id;
+  if (!userID) {
+    return res.redirect("/login")
+  } 
   let email = userDatabase[userID]["email"];
   const templateVars = {
-    user: user,
     userID: userID,
     email: email,
   };
@@ -119,15 +121,15 @@ app.post("/register", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   if (userEmail === "" || userPassword === "") {
-    res.send(`400 Bad Request`);
+    return res.send(`400 Bad Request`);
   }
 
   for (const id in userDatabase) {
     if (userEmail === userDatabase[id]["email"]) {
-      res.send(`400 Bad Request`);
+      return res.send(`400 Bad Request`);
     }
   }
-
+  
   userDatabase[newUserID] = {
     id: newUserID,
     email: userEmail,
@@ -146,9 +148,9 @@ app.post("/login", (req, res) => {
   const userPassword = req.body.password;
 
   if (findUserByEmail(userDatabase, userEmail)) {
-    const checking = findUserByEmail(userDatabase, userEmail);
-    if (userPassword === checking.password) {
-      res.cookie("user_id", checking.id);
+    const user = findUserByEmail(userDatabase, userEmail);
+    if (userPassword === user.password) {
+      res.cookie("user_id", user.id);
       res.redirect("/urls");
     } else {
       res.send(`403 Forbidden`);

@@ -5,53 +5,15 @@ const {
   generateRandomString,
   randomUserId,
 } = require("./index");
+const userDatabase = require("./database");
 const app = express();
 const PORT = 8080;
 app.use(cookieParser());
 app.set("view engine", "ejs");
 
-//store database in a seperate file.
-const userDatabase = {
-  "4pwn": {
-    id: "4pwn",
-    email: "johndoe@gmail.com",
-    password: "1234",
-    urls: [
-      {
-        id: "544k7Ky",
-        url: "http://www.apple.com",
-      },
-    ],
-  },
-  bcnr: {
-    id: "bcnr",
-    email: "lhl@gmail.com",
-    password: "abcd",
-    urls: [
-      { 
-        id: "9sm5xK", 
-        url: "http://www.google.com",
-      }, 
-      { 
-        id: "K0be24", 
-        url: "http://www.nba.com",
-      }, 
-    ],
-  },
-};
-
-//store database in a seperate file.
-// not needed anymore.
-// const urlDatabase = {
-//   b2xVn2: "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com",
-//   "7sm6xK": "http://www.apple.com",
-//   "3sm4xK": "http://www.nba.com",
-// };
-
 app.use(express.urlencoded({ extended: true }));
 
-// GET 
+// GET
 
 app.get("/urls", (req, res) => {
   let userID = req.cookies.user_id;
@@ -84,16 +46,13 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   let userID = req.cookies.user_id;
   let email = userDatabase[userID]["email"];
-  let userUrls = userDatabase[userID].urls
-  let longURL = ''; 
+  let userUrls = userDatabase[userID].urls;
+  let longURL = "";
   for (const index of userUrls) {
-    console.log(index.id); 
-    console.log(req.params.id);
     if (index.id === req.params.id) {
-      longURL = index.url
-    } 
+      longURL = index.url;
+    }
   }
-  console.log(`longUrl: ${longURL}`)
   const templateVars = {
     id: req.params.id,
     longURL: longURL,
@@ -103,20 +62,16 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-
 app.get("/u/:id", (req, res) => {
   let userID = req.cookies.user_id;
   const id = req.params.id;
-  let longURL ='';
-  let userUrls = userDatabase[userID].urls
+  let longURL = "";
+  let userUrls = userDatabase[userID].urls;
   for (const index of userUrls) {
-    console.log(id); 
-    console.log(index);
     if (index.id === id) {
-      longURL = index.url
-    } 
+      longURL = index.url;
+    }
   }
-  console.log(`longUrl: ${longURL}`)
   if (!longURL) {
     return res.send("404 not found");
   }
@@ -137,14 +92,12 @@ app.post("/urls", (req, res) => {
   let userID = req.cookies.user_id;
   const newID = generateRandomString();
   const newUrl = req.body.longURL;
-  let userURls = userDatabase[userID]["urls"]; 
-  console.log(`userURls: ${userURls}`)
+  let userURls = userDatabase[userID]["urls"];
   let newUrlEntry = {
     id: newID,
     url: newUrl,
   };
   userURls.push(newUrlEntry);
-  console.log(userURls); 
   res.redirect(`/urls/${newID}`);
 });
 
@@ -152,31 +105,25 @@ app.post("/urls/:id/delete", (req, res) => {
   let userID = req.cookies.user_id;
   const id = req.params.id;
   let userUrls = userDatabase[userID].urls;
-  for (const index of userUrls) {
-    if (index.id === id) {
-      delete index.id
-      delete index.url
-
-    }}
-  console.log(userUrls); 
+  userDatabase[userID].urls = userUrls.filter(function (urlObject) {
+    if (urlObject.id === id) {
+      return false;
+    }
+    return true;
+  });
   res.redirect("/urls");
-}); 
+});
 
 app.post("/urls/:id", (req, res) => {
   let userID = req.cookies.user_id;
   const id = req.params.id;
   const longUrl = req.body.longURL;
-  let userUrls = userDatabase[userID].urls
-  console.log(`id: ${id}, longUrl: ${longUrl}`);
+  let userUrls = userDatabase[userID].urls;
   for (const index of userUrls) {
-    console.log(index);
-    console.log(id);  
     if (index.id === id) {
-      index.url = longUrl
-    } 
+      index.url = longUrl;
+    }
   }
-  console.log(`new longUrl: ${longUrl}`)
-
   res.redirect(`/urls/${id}`);
 });
 

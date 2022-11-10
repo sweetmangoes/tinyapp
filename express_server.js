@@ -10,7 +10,6 @@ const app = express();
 const PORT = 8080;
 app.use(cookieParser());
 app.set("view engine", "ejs");
-
 app.use(express.urlencoded({ extended: true }));
 
 // GET

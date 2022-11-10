@@ -6,6 +6,7 @@ const {
   randomUserId,
 } = require("./index");
 const userDatabase = require("./database");
+const bcrypt = require("bcryptjs"); 
 const app = express();
 const PORT = 8080;
 app.use(cookieParser());
@@ -135,6 +136,7 @@ app.post("/register", (req, res) => {
   const newUserID = randomUserId();
   const userEmail = req.body.email;
   const userPassword = req.body.password;
+  const hashedPassword = bcrypt.hashSync(userPassword,10); 
   if (userEmail === "" || userPassword === "") {
     return res.send(`400 Bad Request`);
   }
@@ -148,7 +150,7 @@ app.post("/register", (req, res) => {
   userDatabase[newUserID] = {
     id: newUserID,
     email: userEmail,
-    password: userPassword,
+    password: hashedPassword,
     urls: [],
   };
   res.cookie("user_id", newUserID);
@@ -158,10 +160,11 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
+  const hashedPassword = bcrypt.hashSync(userPassword,10); 
 
   if (findUserByEmail(userDatabase, userEmail)) {
     const user = findUserByEmail(userDatabase, userEmail);
-    if (userPassword === user.password) {
+    if (bcrypt.compareSync(userPassword,hashedPassword)) { 
       res.cookie("user_id", user.id);
       res.redirect("/urls");
     } else {

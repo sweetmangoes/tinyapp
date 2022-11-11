@@ -1,3 +1,4 @@
+// --- Requirements
 const express = require("express");
 const cookieSession = require("cookie-session");
 const {
@@ -7,6 +8,8 @@ const {
 } = require("./index");
 const userDatabase = require("./database");
 const bcrypt = require("bcryptjs");
+
+// --- Setup and Middlewares
 const app = express();
 const PORT = 8080;
 app.use(
@@ -18,7 +21,9 @@ app.use(
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 
-// GET
+// --- Routes and Endpoints
+
+// Read - GET
 
 app.get("/urls", (req, res) => {
   let userID = req.session.user_id;
@@ -91,7 +96,7 @@ app.get("/login", (req, res) => {
   res.render("urls_login");
 });
 
-// POST
+// Create - POST
 
 app.post("/urls", (req, res) => {
   let userID = req.session.user_id;
@@ -132,23 +137,29 @@ app.post("/urls/:id", (req, res) => {
   res.redirect(`/urls/${id}`);
 });
 
+
 app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect("/login");
 });
 
+// Authentication routes 
 app.post("/register", (req, res) => {
   const newUserID = randomUserId();
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   const hashedPassword = bcrypt.hashSync(userPassword, 10);
   if (userEmail === "" || userPassword === "") {
-    return res.send(`400 Bad Request`);
+    return res
+      .status(400)
+      .send(`Please provide email and password!`);
   }
 
   for (const id in userDatabase) {
     if (userEmail === userDatabase[id]["email"]) {
-      return res.send(`400 Bad Request`);
+      return res
+        .status(400)
+        .send(`Email already exists!`);
     }
   }
 
@@ -169,17 +180,22 @@ app.post("/login", (req, res) => {
 
   if (findUserByEmail(userDatabase, userEmail)) {
     const user = findUserByEmail(userDatabase, userEmail);
-    if (bcrypt.compareSync(userPassword, hashedPassword)) {
+    if (bcrypt.compareSync(user.password, hashedPassword)) {
       req.session.user_id = user.id;
       res.redirect("/urls");
     } else {
-      res.send(`403 Forbidden`);
+      res
+      .status(403)
+      .send(`Wrong password.`);
     }
   } else {
-    res.send(`403 Forbidden`);
+    res
+      .status(403)
+      .send(`Email does not exist`);
   }
 });
 
+// --- Listener
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });

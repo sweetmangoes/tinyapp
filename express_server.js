@@ -25,28 +25,30 @@ app.use(express.urlencoded({ extended: true }));
 
 // Read - GET
 
-app.get("/", (req,res) => {
+app.get("/", (req, res) => {
   let userID = req.session.user_id;
   if (!userID) {
     return res.redirect("/login");
   } else {
     return res.redirect("/urls");
   }
-}); 
+});
 
 app.get("/urls", (req, res) => {
   let userID = req.session.user_id;
+
   if (!userID) {
     return res.redirect("/login");
+  } else {
+    let email = userDatabase[userID]["email"];
+    let userURLs = userDatabase[userID].urls;
+    const templateVars = {
+      urls: userURLs,
+      userID: userID,
+      email: email,
+    };
+    res.render("urls_index", templateVars);
   }
-  let email = userDatabase[userID]["email"];
-  let userURLs = userDatabase[userID].urls;
-  const templateVars = {
-    urls: userURLs,
-    userID: userID,
-    email: email,
-  };
-  res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
@@ -54,6 +56,7 @@ app.get("/urls/new", (req, res) => {
   if (!userID) {
     return res.redirect("/login");
   }
+
   let email = userDatabase[userID]["email"];
   const templateVars = {
     userID: userID,
@@ -64,20 +67,30 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   let userID = req.session.user_id;
+  
+  if (!userID) {
+    return res.redirect("/login");
+  }
+
   let email = userDatabase[userID]["email"];
   let userUrls = userDatabase[userID].urls;
   let longURL = "";
+
   for (const index of userUrls) {
     if (index.id === req.params.id) {
       longURL = index.url;
+    } else if (index.id !== req.params.id) {
+      res.send("Url does not exist");
     }
   }
+
   const templateVars = {
     id: req.params.id,
     longURL: longURL,
     userID: userID,
     email: email,
   };
+
   res.render("urls_show", templateVars);
 });
 
@@ -146,29 +159,24 @@ app.post("/urls/:id", (req, res) => {
   res.redirect(`/urls/${id}`);
 });
 
-
 app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect("/login");
 });
 
-// Authentication routes 
+// Authentication routes
 app.post("/register", (req, res) => {
   const newUserID = randomUserId();
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   const hashedPassword = bcrypt.hashSync(userPassword, 10);
   if (userEmail === "" || userPassword === "") {
-    return res
-      .status(400)
-      .send(`Please provide email and password!`);
+    return res.status(400).send(`Please provide email and password!`);
   }
 
   for (const id in userDatabase) {
     if (userEmail === userDatabase[id]["email"]) {
-      return res
-        .status(400)
-        .send(`Email already exists!`);
+      return res.status(400).send(`Email already exists!`);
     }
   }
 
@@ -193,14 +201,10 @@ app.post("/login", (req, res) => {
       req.session.user_id = user.id;
       res.redirect("/urls");
     } else {
-      res
-      .status(403)
-      .send(`Wrong password.`);
+      res.status(403).send(`Wrong password.`);
     }
   } else {
-    res
-      .status(403)
-      .send(`Email does not exist`);
+    res.status(403).send(`Email does not exist`);
   }
 });
 

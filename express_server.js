@@ -6,7 +6,7 @@ const {
   generateRandomString,
   randomUserId,
 } = require("./helper");
-const userDatabase = require("./database");
+const { userDatabase, urlsDatabase } = require("./database");
 const bcrypt = require("bcryptjs");
 
 // --- Setup and Middlewares
@@ -39,16 +39,16 @@ app.get("/urls", (req, res) => {
 
   if (!userID) {
     return res.redirect("/login");
-  } else {
-    let email = userDatabase[userID]["email"];
-    let userURLs = userDatabase[userID].urls;
-    const templateVars = {
-      urls: userURLs,
-      userID: userID,
-      email: email,
-    };
-    res.render("urls_index", templateVars);
   }
+
+  let email = userDatabase[userID]["email"];
+  let userURLs = userDatabase[userID].urls;
+  const templateVars = {
+    urls: userURLs,
+    userID: userID,
+    email: email,
+  };
+  res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
@@ -67,7 +67,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   let userID = req.session.user_id;
-  
+
   if (!userID) {
     return res.redirect("/login");
   }
@@ -79,8 +79,6 @@ app.get("/urls/:id", (req, res) => {
   for (const index of userUrls) {
     if (index.id === req.params.id) {
       longURL = index.url;
-    } else if (index.id !== req.params.id) {
-      res.send("Url does not exist");
     }
   }
 

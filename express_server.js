@@ -5,7 +5,7 @@ const {
   findUserByEmail,
   generateRandomString,
   randomUserId,
-} = require("./index");
+} = require("./helper");
 const userDatabase = require("./database");
 const bcrypt = require("bcryptjs");
 
@@ -24,6 +24,15 @@ app.use(express.urlencoded({ extended: true }));
 // --- Routes and Endpoints
 
 // Read - GET
+
+app.get("/", (req,res) => {
+  let userID = req.session.user_id;
+  if (!userID) {
+    return res.redirect("/login");
+  } else {
+    return res.redirect("/urls");
+  }
+}); 
 
 app.get("/urls", (req, res) => {
   let userID = req.session.user_id;

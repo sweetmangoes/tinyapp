@@ -42,7 +42,13 @@ app.get("/urls", (req, res) => {
   }
 
   let email = userDatabase[userID]["email"];
-  let userURLs = userDatabase[userID].urls;
+  let userURLs = [];
+  for (const element of urlsDatabase) {
+    if (userID === element.userId) {
+      userURLs.push([element.id, element.url])
+    }
+  }
+
   const templateVars = {
     urls: userURLs,
     userID: userID,

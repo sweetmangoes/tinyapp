@@ -34,8 +34,8 @@
         <tbody>
           <% for (let i =0; i < urls.length; i++) { %>
             <tr>
-              <td><%= urls[i].id %></td>
-              <td><%= urls[i].url %></td>
+              <td><%= urls[i][0] %></td>
+              <td><%= urls[i][1] %></td>
               <td>
                 <form method="POST" action="/urls/<%= urls[i].id%>">
                   <button type="submit">Edit</button>

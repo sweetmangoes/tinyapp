@@ -71,7 +71,6 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-
 app.get("/urls/:id", (req, res) => {
   let userID = req.session.user_id;
 
@@ -82,11 +81,11 @@ app.get("/urls/:id", (req, res) => {
   let urlID = req.params.id;
   let email = userDatabase[userID]["email"];
 
-  // Prevents other user to edit users url
+  // Prevents user to edit other users url
   for (const url of urlsDatabase) {
-    if(urlID === url.id) {
+    if (urlID === url.id) {
       if (userID !== url.userId) {
-        return res.status(404).send(`You can't edit url that you don't own.`)
+        return res.status(404).send(`You can't edit url that you don't own.`);
       }
     }
   }
@@ -106,9 +105,6 @@ app.get("/urls/:id", (req, res) => {
       }
     }
   }
-
-
-
 });
 
 app.get("/u/:id", (req, res) => {
@@ -129,17 +125,13 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-
 app.get("/register", (req, res) => {
   res.render("urls_register");
 });
 
-
 app.get("/login", (req, res) => {
   res.render("urls_login");
 });
-
-
 
 app.post("/urls", (req, res) => {
   let userID = req.session.user_id;
@@ -163,18 +155,19 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   let userID = req.session.user_id;
 
-   if (!userID) {
+  if (!userID) {
     return res.send(`Please log in`);
   }
 
   //User deletes url, redirects to /Urls
   const id = req.params.id;
-  const indexOfElementToBeDeleted = urlsDatabase.findIndex(urlObject=>
-    urlObject.id === id);
-  if (indexOfElementToBeDeleted > -1){
+  const indexOfElementToBeDeleted = urlsDatabase.findIndex(
+    (urlObject) => urlObject.id === id
+  );
+  if (indexOfElementToBeDeleted > -1) {
     urlsDatabase.splice(indexOfElementToBeDeleted, 1);
-  } 
-  res.redirect('/urls'); 
+  }
+  res.redirect("/urls");
 });
 
 app.post("/urls/:id", (req, res) => {
@@ -186,7 +179,7 @@ app.post("/urls/:id", (req, res) => {
       url.url = longUrl;
     }
   }
-  res.redirect(`/urls/${id}`);
+  res.redirect(`/urls`);
 });
 
 app.post("/logout", (req, res) => {
@@ -200,6 +193,7 @@ app.post("/register", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   const hashedPassword = bcrypt.hashSync(userPassword, 10);
+
   if (userEmail === "" || userPassword === "") {
     return res.status(400).send(`Please provide email and password!`);
   }

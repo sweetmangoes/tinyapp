@@ -88,11 +88,13 @@ app.get("/urls/:id", (req, res) => {
   let longURL = "";
 
   for (const element of urlsDatabase) {
-    if (userID === element.userId){
+    if (userID === element.userId) {
       if (urlID === element.id) {
         longURL = element.url;
       }
-      res.status(403).send(`You can't edit url since it does not belong to you!`)
+      res
+        .status(403)
+        .send(`You can't edit url since it does not belong to you!`);
     }
   }
 
@@ -106,19 +108,23 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// refactored and works
 app.get("/u/:id", (req, res) => {
-  let userID = req.session.user_id;
   const id = req.params.id;
+  console.log("url id: ", id);
   let longURL = "";
-  let userUrls = userDatabase[userID].urls;
-  for (const index of userUrls) {
-    if (index.id === id) {
-      longURL = index.url;
+
+  for (const element of urlsDatabase) {
+    console.log(element.id);
+    if (id === element.id) {
+      longURL = element.url;
     }
   }
+
   if (!longURL) {
-    return res.send("404 not found");
+    res.status(404).send(`Url shortener does not exist.`);
   }
+
   res.redirect(longURL);
 });
 

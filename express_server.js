@@ -25,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Read - GET
 
+//Refactored and works
 app.get("/", (req, res) => {
   let userID = req.session.user_id;
   if (!userID) {
@@ -34,6 +35,7 @@ app.get("/", (req, res) => {
   }
 });
 
+//Refactored and works
 app.get("/urls", (req, res) => {
   let userID = req.session.user_id;
 
@@ -45,7 +47,7 @@ app.get("/urls", (req, res) => {
   let userURLs = [];
   for (const element of urlsDatabase) {
     if (userID === element.userId) {
-      userURLs.push([element.id, element.url])
+      userURLs.push([element.id, element.url]);
     }
   }
 
@@ -57,6 +59,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+// refactored and works
 app.get("/urls/new", (req, res) => {
   let userID = req.session.user_id;
   if (!userID) {
@@ -71,6 +74,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+// refactored and works
 app.get("/urls/:id", (req, res) => {
   let userID = req.session.user_id;
 
@@ -78,13 +82,17 @@ app.get("/urls/:id", (req, res) => {
     return res.redirect("/login");
   }
 
+  let urlID = req.params.id;
   let email = userDatabase[userID]["email"];
-  let userUrls = userDatabase[userID].urls;
+
   let longURL = "";
 
-  for (const index of userUrls) {
-    if (index.id === req.params.id) {
-      longURL = index.url;
+  for (const element of urlsDatabase) {
+    if (userID === element.userId){
+      if (urlID === element.id) {
+        longURL = element.url;
+      }
+      res.status(403).send(`You can't edit url since it does not belong to you!`)
     }
   }
 

@@ -23,9 +23,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // --- Routes and Endpoints
 
-// Read - GET
-
-//Refactored and works
 app.get("/", (req, res) => {
   let userID = req.session.user_id;
   if (!userID) {
@@ -35,22 +32,22 @@ app.get("/", (req, res) => {
   }
 });
 
-//Refactored and works
 app.get("/urls", (req, res) => {
   let userID = req.session.user_id;
 
+  // if user is not logged in, redirects to error code.
   if (!userID) {
     return res.redirect("/login");
   }
 
+  //Displays users urls and renders homepage
   let email = userDatabase[userID]["email"];
   let userURLs = [];
-  for (const element of urlsDatabase) {
-    if (userID === element.userId) {
-      userURLs.push([element.id, element.url]);
+  for (const url of urlsDatabase) {
+    if (userID === url.userId) {
+      userURLs.push([url.id, url.url]);
     }
   }
-
   const templateVars = {
     urls: userURLs,
     userID: userID,
@@ -59,9 +56,9 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// refactored and works
 app.get("/urls/new", (req, res) => {
   let userID = req.session.user_id;
+
   if (!userID) {
     return res.redirect("/login");
   }
@@ -74,7 +71,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// refactored and works
+
 app.get("/urls/:id", (req, res) => {
   let userID = req.session.user_id;
 
@@ -85,42 +82,46 @@ app.get("/urls/:id", (req, res) => {
   let urlID = req.params.id;
   let email = userDatabase[userID]["email"];
 
-  let longURL = "";
-
-  for (const element of urlsDatabase) {
-    if (userID === element.userId) {
-      if (urlID === element.id) {
-        longURL = element.url;
+  // Prevents other user to edit users url
+  for (const url of urlsDatabase) {
+    if(urlID === url.id) {
+      if (userID !== url.userId) {
+        return res.status(404).send(`You can't edit url that you don't own.`)
       }
-      res
-        .status(403)
-        .send(`You can't edit url since it does not belong to you!`);
     }
   }
 
-  const templateVars = {
-    id: req.params.id,
-    longURL: longURL,
-    userID: userID,
-    email: email,
-  };
+  // Allows users to edit their url
+  for (const url of urlsDatabase) {
+    if (userID === url.userId) {
+      if (urlID === url.id) {
+        const longURL = url.url;
+        const templateVars = {
+          id: req.params.id,
+          longURL: longURL,
+          userID: userID,
+          email: email,
+        };
+        return res.render("urls_show", templateVars);
+      }
+    }
+  }
 
-  res.render("urls_show", templateVars);
+
+
 });
 
-// refactored and works
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
-  console.log("url id: ", id);
   let longURL = "";
 
-  for (const element of urlsDatabase) {
-    console.log(element.id);
-    if (id === element.id) {
-      longURL = element.url;
+  for (const url of urlsDatabase) {
+    if (id === url.id) {
+      longURL = url.url;
     }
   }
 
+  // Send error code if url doesn't exist in database
   if (!longURL) {
     res.status(404).send(`Url shortener does not exist.`);
   }
@@ -128,50 +129,61 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
+
 app.get("/register", (req, res) => {
   res.render("urls_register");
 });
+
 
 app.get("/login", (req, res) => {
   res.render("urls_login");
 });
 
-// Create - POST
+
 
 app.post("/urls", (req, res) => {
   let userID = req.session.user_id;
+
+  if (!userID) {
+    return res.send(`Please log in`);
+  }
+
+  //Generates a short URL, saves it, associates it with the user and redirects to /urls/:id
   const newID = generateRandomString();
   const newUrl = req.body.longURL;
-  let userURls = userDatabase[userID]["urls"];
   let newUrlEntry = {
     id: newID,
     url: newUrl,
+    userId: userID,
   };
-  userURls.push(newUrlEntry);
+  urlsDatabase.push(newUrlEntry);
   res.redirect(`/urls/${newID}`);
 });
 
 app.post("/urls/:id/delete", (req, res) => {
   let userID = req.session.user_id;
+
+   if (!userID) {
+    return res.send(`Please log in`);
+  }
+
+  //User deletes url, redirects to /Urls
   const id = req.params.id;
-  let userUrls = userDatabase[userID].urls;
-  userDatabase[userID].urls = userUrls.filter(function (urlObject) {
-    if (urlObject.id === id) {
-      return false;
-    }
-    return true;
-  });
-  res.redirect("/urls");
+  const indexOfElementToBeDeleted = urlsDatabase.findIndex(urlObject=>
+    urlObject.id === id);
+  if (indexOfElementToBeDeleted > -1){
+    urlsDatabase.splice(indexOfElementToBeDeleted, 1);
+  } 
+  res.redirect('/urls'); 
 });
 
 app.post("/urls/:id", (req, res) => {
-  let userID = req.session.user_id;
   const id = req.params.id;
   const longUrl = req.body.longURL;
-  let userUrls = userDatabase[userID].urls;
-  for (const index of userUrls) {
-    if (index.id === id) {
-      index.url = longUrl;
+
+  for (const url of urlsDatabase) {
+    if (id === url.id) {
+      url.url = longUrl;
     }
   }
   res.redirect(`/urls/${id}`);
@@ -202,7 +214,6 @@ app.post("/register", (req, res) => {
     id: newUserID,
     email: userEmail,
     password: hashedPassword,
-    urls: [],
   };
   req.session.user_id = newUserID;
   res.redirect("/urls");
